@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Man Sayarbah Al-malyoon - Who Wants to Be a Millionaire</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+    }
+    #question {
+        font-size: 20px;
+        margin-bottom: 20px;
+    }
+    .answer {
+        display: inline-block;
+        margin: 5px;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+    #lifelines {
+        margin-top: 20px;
+    }
+    #money-tree {
+        margin: 0 auto;
+        display: table;
+    }
+    #money-tree ul {
+        display: table-row;
+    }
+    #money-tree ul li {
+        display: table-cell;
+        padding: 10px;
+        font-weight: bold;
+        border: 1px solid #ccc;
+        background-color: #fff;
+    }
+    #timer {
+        float: right;
+        margin-right: 20px;
+        font-size: 18px;
+    }
+    #restart-button {
+        margin-top: 20px;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        display: none;
+    }
+</style>
+</head>
+<body>
+
+<h1>Man Sayarbah Al-malyoon - Who Wants to Be a Millionaire</h1>
+
+<div id="question"></div>
+<div id="answers"></div>
+<div id="lifelines">
+    <button onclick="askAudience()">Ask the Audience</button>
+    <button onclick="phoneFriend()">Phone a Friend</button>
+    <button onclick="fiftyFifty()">50/50</button>
+</div>
+<div id="money-tree">
+    <h2>Money Tree</h2>
+    <ul>
+        <li style="background-color: #ffcc00;">1 AED</li>
+        <li style="background-color: #ffcc00;">2 AED</li>
+        <li style="background-color: #ffcc00;">3 AED</li>
+        <li style="background-color: #ffcc00;">5 AED</li>
+        <li style="background-color: #ffcc00;">10 AED</li>
+        <li style="background-color: #ffcc00;">20 AED</li>
+        <li style="background-color: #ffcc00;">40 AED</li>
+        <li style="background-color: #ffcc00;">80 AED</li>
+        <li style="background-color: #ffcc00;">160 AED</li>
+        <li style="background-color: #ffcc00;">320 AED</li>
+        <li style="background-color: #ffcc00;">640 AED</li>
+        <li style="background-color: #ffcc00;">1,250 AED</li>
+        <li style="background-color: #ffcc00;">2,500 AED</li>
+        <li style="background-color: #ffcc00;">5,000 AED</li>
+        <li style="background-color: #ffcc00;">10,000 AED</li>
+    </ul>
+</div>
+<div id="timer">Time Left: <span id="time-left">15</span> seconds</div>
+<button id="restart-button" onclick="restartGame()">Restart Game</button>
+
+<script>
+    const questions = [
+        {
+            question: "What is the significance of Laylat al-Qadr?",
+            answers: ["It is the Night of Power, when the Quran was first revealed", "It is the night when angels descend to Earth", "It is the night of Prophet Muhammad's (PBUH) ascension to heaven", "It is the night of Eid al-Fitr"],
+            correctAnswer: "It is the Night of Power, when the Quran was first revealed",
+            asked: false
+        },
+        {
+            question: "What is the name of the Islamic declaration of faith?",
+            answers: ["Shahada", "Salat", "Zakat", "Sawm"],
+            correctAnswer: "Shahada",
+            asked: false
+        },
+        {
+            question: "What is the name of the ritual prayer performed by Muslims five times a day?",
+            answers: ["Salat", "Sawm", "Zakat", "Hajj"],
+            correctAnswer: "Salat",
+            asked: false
+        },
+        // Add more challenging Islamic questions here
+        {
+            question: "What is the name of the angel who will blow the trumpet to announce the Day of Judgment?",
+            answers: ["Israfil", "Jibreel (Gabriel)", "Mikail", "Azrael"],
+            correctAnswer: "Israfil",
+            asked: false
+        },
+        {
+            question: "What is the name of the Islamic pilgrimage to Mecca that can be undertaken at any time of the year?",
+            answers: ["Umrah", "Hajj", "Ziyarat", "Tawaf"],
+            correctAnswer: "Umrah",
+            asked: false
+        },
+        {
+            question: "What is the name of the Islamic call to prayer?",
+            answers: ["Adhan", "Iqama", "Takbir", "Tashahhud"],
+            correctAnswer: "Adhan",
+            asked: false
+        },
+        // Add more challenging Islamic questions here
+    ];
+
+    let currentQuestionIndex = -1;
+    let moneyWon = 0;
+    let timer;
+
+    function startGame() {
+        document.getElementById("start-button").disabled = true;
+        nextQuestion();
+        timer = setInterval(countdown, 1000);
+    }
+
+    function countdown() {
+        const timeLeftElement = document.getElementById("time-left");
+        let timeLeft = parseInt(timeLeftElement.textContent);
+        if (timeLeft > 0) {
+            timeLeft--;
+            timeLeftElement.textContent = timeLeft;
+        } else {
+            clearInterval(timer);
+            displayFinalMessage("Time's up! You've won " + moneyWon + " AED");
+        }
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < questions.length) {
+            displayQuestion();
+            document.getElementById("time-left").textContent = 15;
+        } else {
+            displayFinalMessage("Congratulations! You've won " + moneyWon + " AED");
+        }
+    }
+
+    function displayQuestion() {
+        const questionElement = document.getElementById("question");
+        const answersElement = document.getElementById("answers");
+        questionElement.textContent = questions[currentQuestionIndex].question;
+        const shuffledAnswers = shuffleArray(questions[currentQuestionIndex].answers);
+        answersElement.innerHTML = "";
+        shuffledAnswers.forEach((answer, index) => {
+            const answerButton = document.createElement("button");
+            answerButton.textContent = answer;
+            answerButton.classList.add("answer");
+            answerButton.onclick = () => checkAnswer(index);
+            answersElement.appendChild(answerButton);
+        });
+    }
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    function checkAnswer(answerIndex) {
+        clearInterval(timer);
+        if (questions[currentQuestionIndex].answers[answerIndex] === questions[currentQuestionIndex].correctAnswer) {
+            moneyWon += getMoneyPrize();
+            highlightMoneyTree();
+            nextQuestion();
+        } else {
+            displayFinalMessage("Sorry, wrong answer! You've won " + moneyWon + " AED");
+        }
+    }
+
+    function getMoneyPrize() {
+        const moneyPrizes = [1, 2, 3, 5, 10, 20, 40, 80, 160, 320, 640, 1250, 2500, 5000, 10000];
+        return moneyPrizes[currentQuestionIndex];
+    }
+
+    function displayFinalMessage(message) {
+        const questionElement = document.getElementById("question");
+        const answersElement = document.getElementById("answers");
+        questionElement.textContent = message;
+        answersElement.innerHTML = "";
+        document.getElementById("lifelines").style.display = "none";
+        document.getElementById("restart-button").style.display = "inline-block";
+    }
+
+    function restartGame() {
+        currentQuestionIndex = -1;
+        moneyWon = 0;
+        document.getElementById("restart-button").style.display = "none";
+        document.getElementById("start-button").disabled = false;
+        resetMoneyTree();
+    }
+
+    function askAudience() {
+        // Add implementation for Ask the Audience lifeline
+    }
+
+    function phoneFriend() {
+        // Add implementation for Phone a Friend lifeline
+    }
+
+    function fiftyFifty() {
+        // Add implementation for 50/50 lifeline
+    }
+
+    function highlightMoneyTree() {
+        const moneyTreeItems = document.querySelectorAll("#money-tree li");
+        moneyTreeItems[currentQuestionIndex].style.backgroundColor = "#00cc00";
+    }
+
+    function resetMoneyTree() {
+        const moneyTreeItems = document.querySelectorAll("#money-tree li");
+        moneyTreeItems.forEach(item => {
+            item.style.backgroundColor = "#ffcc00";
+        });
+    }
+</script>
+
+<button id="start-button" onclick="startGame()">Start Game</button>
+
+</body>
+</html>
